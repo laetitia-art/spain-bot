@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spain Readiness Check — Coming to Spain</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5F0E8; --sand-dark: #EDE6D6; --terracotta: #C4622D;
+    --terracotta-light: #E8896A; --terracotta-pale: #FAF0EB;
+    --navy: #1A2B3C; --navy-mid: #2E4560; --text: #1A2B3C;
+    --text-mid: #4A5568; --text-light: #718096; --white: #FFFFFF;
+    --radius: 16px; --radius-sm: 8px;
+  }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(--text); font-size: 16px; line-height: 1.6; }
+  .app { min-height: 100vh; display: flex; flex-direction: column; max-width: 680px; margin: 0 auto; padding: 0 20px; }
+  .header { padding: 32px 0 20px; text-align: center; animation: fadeDown 0.6s ease both; }
+  .header-logo { font-family: 'Playfair Display', serif; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 6px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 5vw, 28px); font-weight: 600; color: var(--navy); line-height: 1.2; }
+  .header-sub { font-size: 14px; color: var(--text-mid); margin-top: 6px; }
+  .progress-bar { height: 3px; background: var(--sand-dark); border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--terracotta); border-radius: 2px; transition: width 0.5s ease; }
+  .chat { flex: 1; display: flex; flex-direction: column; gap: 16px; padding-bottom: 140px; }
+  .msg { display: flex; gap: 10px; animation: fadeUp 0.4s ease both; }
+  .msg.user { flex-direction: row-reverse; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; margin-top: 2px; }
+  .avatar.bot { background: var(--terracotta); color: white; }
+  .avatar.user-av { background: var(--navy); color: white; }
+  .bubble { max-width: 86%; padding: 14px 18px; border-radius: var(--radius); font-size: 15px; line-height: 1.6; }
+  .bubble.bot { background: var(--white); border-radius: 4px var(--radius) var(--radius) var(--radius); box-shadow: 0 2px 12px rgba(26,43,60,0.07); }
+  .bubble.user { background: var(--navy); color: white; border-radius: var(--radius) 4px var(--radius) var(--radius); }
+  .bubble.bot p { margin-bottom: 8px; } .bubble.bot p:last-child { margin-bottom: 0; }
+  .bubble.bot strong { color: var(--terracotta); font-weight: 500; }
+  .bubble.bot a { color: var(--terracotta); text-decoration: underline; }
+  .bubble.bot a:hover { color: var(--navy); }
+  .step-block { margin: 14px 0 10px; padding: 14px; background: var(--terracotta-pale); border-left: 3px solid var(--terracotta); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .step-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--navy); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--terracotta); color: white; font-size: 11px; font-family: 'DM Sans',sans-serif; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-body { font-size: 14px; color: var(--text-mid); margin-bottom: 8px; }
+  .partner-tag { display: inline-block; background: var(--navy); color: white; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-top: 4px; }
+  .read-block { margin: 10px 0; padding: 12px 14px; background: #F0F7F4; border-left: 3px solid #1D9E75; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .read-title { font-size: 13px; font-weight: 500; color: #085041; margin-bottom: 6px; }
+  .read-link { display: block; font-size: 13px; color: #0F6E56; text-decoration: underline; margin-bottom: 3px; }
+  .read-link:hover { color: var(--navy); }
+  .situation-box { background: var(--navy); color: rgba(255,255,255,0.85); font-size: 14px; padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 14px; font-style: italic; }
+  .typing { display: flex; gap: 10px; animation: fadeUp 0.3s ease both; }
+  .typing-dots { background: var(--white); border-radius: 4px var(--radius) var(--radius) var(--radius); padding: 14px 18px; box-shadow: 0 2px 12px rgba(26,43,60,0.07); display: flex; gap: 5px; align-items: center; }
+  .typing-dots span { width: 7px; height: 7px; background: var(--terracotta-light); border-radius: 50%; animation: bounce 1.2s ease infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; } .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  .input-area { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 680px; padding: 16px 20px 24px; background: linear-gradient(to top, var(--sand) 70%, transparent); }
+  .input-wrap { display: flex; gap: 10px; background: var(--white); border-radius: 50px; padding: 8px 8px 8px 20px; box-shadow: 0 4px 24px rgba(26,43,60,0.12); border: 1px solid rgba(26,43,60,0.08); }
+  .input-wrap input { flex: 1; border: none; outline: none; font-family: 'DM Sans',sans-serif; font-size: 15px; color: var(--text); background: transparent; }
+  .input-wrap input::placeholder { color: var(--text-light); }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--terracotta); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.1s; flex-shrink: 0; }
+  .send-btn:hover { background: var(--navy); } .send-btn:active { transform: scale(0.95); }
+  .send-btn svg { width: 18px; height: 18px; fill: white; }
+  .send-btn:disabled { background: var(--sand-dark); cursor: not-allowed; }
+  .start-screen { text-align: center; padding: 20px 0 40px; animation: fadeUp 0.5s ease both; }
+  .start-icon { font-size: 44px; margin-bottom: 14px; }
+  .start-screen h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--navy); margin-bottom: 10px; }
+  .start-screen p { color: var(--text-mid); font-size: 15px; max-width: 420px; margin: 0 auto 28px; }
+  .start-btn { display: inline-block; background: var(--terracotta); color: white; padding: 14px 36px; border-radius: 50px; border: none; font-family: 'DM Sans',sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; letter-spacing: 0.02em; }
+  .start-btn:hover { background: var(--navy); }
+  .trust-row { display: flex; justify-content: center; gap: 20px; margin-top: 24px; flex-wrap: wrap; }
+  .trust-item { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 5px; }
+  .trust-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta-light); }
+  .email-gate { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 24px rgba(26,43,60,0.1); animation: fadeUp 0.4s ease both; }
+  .email-gate h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--navy); margin-bottom: 8px; }
+  .email-gate p { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; }
+  .email-input-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .email-input-wrap input { width: 100%; padding: 13px 16px; border: 1px solid rgba(26,43,60,0.15); border-radius: var(--radius-sm); font-family: 'DM Sans',sans-serif; font-size: 15px; color: var(--text); outline: none; transition: border-color 0.2s; }
+  .email-input-wrap input:focus { border-color: var(--terracotta); }
+  .email-submit { width: 100%; padding: 13px; background: var(--terracotta); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans',sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .email-submit:hover { background: var(--navy); }
+  .privacy-note { font-size: 11px; color: var(--text-light); margin-top: 10px; text-align: center; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 2px; }
+  @media (max-width: 480px) { .bubble { max-width: 92%; font-size: 14px; } .header h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <div class="header-logo">Coming to Spain</div>
+    <h1>Your Spain Readiness Check</h1>
+    <p class="header-sub">Answer a few questions. Get your personalised plan.</p>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="chat" id="chat">
+    <div class="start-screen" id="startScreen">
+      <div class="start-icon">🇪🇸</div>
+      <h2>Thinking about moving to Spain?</h2>
+      <p>Most people spend months researching and still don't know what to do first. This takes 3 minutes and gives you a clear, personalised plan.</p>
+      <button class="start-btn" onclick="startChat()">Start my readiness check</button>
+      <div class="trust-row">
+        <span class="trust-item"><span class="trust-dot"></span>8+ years helping people relocate</span>
+        <span class="trust-item"><span class="trust-dot"></span>Trusted specialist network</span>
+        <span class="trust-item"><span class="trust-dot"></span>Free, no obligation</span>
+      </div>
+    </div>
+  </div>
+  <div class="input-area" id="inputArea" style="display:none">
+    <div class="input-wrap">
+      <input type="text" id="userInput" placeholder="Type your answer..." autocomplete="off" />
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+const SYSTEM_PROMPT = `You are the Spain Readiness Bot, created by Laetitia at Coming to Spain (comingtospain.com).
+
+You help people planning to move to Spain understand exactly where they are in the process and what to do next — in the right order. Your tone is warm, direct, reassuring — like a knowledgeable friend.
+
+## CRITICAL RULE — TIMELINE-BASED OUTPUT
+You MUST adjust your output based on how far out the person is from moving. This is the most important logic in the bot.
+
+### IF MOVING IN 2+ YEARS (or "not sure", "someday", "exploring"):
+Do NOT recommend booking consultations or speaking to experts. They are not ready. Instead:
+- Acknowledge they have time — this is actually great
+- Give them 3 relevant blog posts to read from comingtospain.com based on their situation
+- Invite them to join Laetitia's email list for updates
+- Tell them when to come back (e.g. "When you're 12 months out, that's when to start the practical steps")
+Output label: "Your Spain reading list"
+
+### IF MOVING IN 12–24 MONTHS:
+Light touch. Point to 2 blog posts + suggest 1 early conversation that costs nothing (e.g. a free call with Rob or Sabine just to understand the landscape). No urgency.
+Output label: "Your Spain starter plan"
+
+### IF MOVING IN 6–12 MONTHS:
+Planning mode. Mix of blog posts for context + 2-3 partner recommendations. Some things should start now (visa conversation, health insurance quote), others can wait.
+Output label: "Your Spain preparation plan"
+
+### IF MOVING IN UNDER 6 MONTHS:
+Urgent. Some things need to happen NOW. 3 partner recommendations with clear urgency. No blog posts needed — they need to act.
+Output label: "Your Spain action plan"
+
+## QUESTION FLOW
+Ask one at a time, naturally. Skip questions if already answered.
+
+1. Working remotely or retiring/sabbatical?
+2. Nationality?
+3. When are you hoping to move — roughly?
+4. (If American + under 24 months) Do you have US retirement accounts — 401k, IRA, Roth, brokerage?
+5. (If yes to accounts) Are they actively paying you income, or still untouched?
+6. Buying or renting in Spain?
+7. (If buying) Will you need a mortgage or cash purchase?
+8. Region or city in mind?
+9. Any pre-existing health conditions?
+10. What's your biggest confusion or worry right now?
+
+Stop when you have enough. Don't ask all 10 if unnecessary.
+
+## OUTPUT FORMAT
+
+**[Label based on timeline above]**
+
+[One sentence describing their situation]
+
+Then either:
+
+FOR 2+ YEARS — blog post list:
+**Your Spain reading list**
+[situation sentence]
+
+Here are the best places to start based on what you've told me:
+
+[2-3 relevant links with a one-line description of each]
+
+Come back to this quiz when you're about 12 months out — that's when the practical steps start. In the meantime, join Laetitia's newsletter at comingtospain.com to stay updated.
+
+FOR UNDER 2 YEARS — steps + partners:
+**Step 1: [title]**
+[2-3 sentences: what, why it matters for them specifically, consequence of leaving it late]
+→ Partner: [name + one line]
+
+**Step 2: [title]**
+[same]
+→ Partner: [name]
+
+**Step 3: [title]**
+[same]
+→ Partner: [name]
+
+[Warm close. Mention Laetitia will be in touch at their email to make introductions. hello@comingtospain.com]
+
+## BLOG POSTS BY TOPIC (use these URLs — match to situation)
+
+VISAS:
+- Non-Lucrative Visa overview: https://www.comingtospain.com/blog/non-lucrative-visa-spain
+- Digital Nomad Visa guide: https://www.comingtospain.com/blog/digitat-nomad-visa
+- How to apply for Digital Nomad Visa: https://www.comingtospain.com/blog/how-to-apply-for-a-digital-nomad-visa-in-spain
+- Apply for NLV: https://www.comingtospain.com/blog/apply-for-a-non-lucrative-visa-in-spain
+- Student visa: https://www.comingtospain.com/blog/apply-for-a-student-visa-spain
+- Study in Spain requirements: https://www.comingtospain.com/blog/requirements-to-study-in-spain-for-international-students
+- Visa rejection reasons: https://www.comingtospain.com/blog/spain-visa-rejection-reasons
+- Work visa: https://www.comingtospain.com/blog/how-do-i-get-a-work-visa-for-spain
+- Get a residence permit: https://www.comingtospain.com/blog/how-to-get-a-residence-permit-in-spain
+- NLV denied: https://www.comingtospain.com/blog/non-lucrative-visa-spain-denied
+
+HEALTH INSURANCE:
+- Best health insurance for expats: https://www.comingtospain.com/blog/best-health-insurance-for-expats-in-spain
+- Health insurance for NLV: https://www.comingtospain.com/blog/best-health-insurance-for-non-lucrative-visa-spain
+- Retiring in Spain — health insurance: https://www.comingtospain.com/blog/retiring-in-spain-health-insurance
+- Health insurance for international students: https://www.comingtospain.com/blog/best-health-insurance-for-international-students-in-spain
+- Health insurance for UK citizens: https://www.comingtospain.com/blog/health-insurance-in-spain-for-uk-citizens
+- Private health insurance cost: https://www.comingtospain.com/blog/private-medical-insurance-cost-in-spain
+- Health insurance for over 75: https://www.comingtospain.com/blog/best-health-insurance-in-spain-for-over-75
+
+FINANCIAL / TAX:
+- How 401k is taxed in Spain: https://www.comingtospain.com/blog/how-401k-is-taxed-in-spain
+- Financial planning for US expats: https://www.comingtospain.com/blog/financial-planning-us-expats-moving-to-spain
+- Taxes in Spain for US retirees: https://www.comingtospain.com/blog/taxes-in-spain-for-us-retirees
+- How to avoid wealth tax: https://www.comingtospain.com/blog/how-to-avoid-wealth-tax-in-spain
+- Beckham Law calculator: https://www.comingtospain.com/blog/beckham-law-spain-calculator
+- How to retire in Spain from the US: https://www.comingtospain.com/blog/how-to-retire-in-spain-from-the-us
+- Cost of living Spain vs USA: https://www.comingtospain.com/blog/cost-of-living-in-spain-vs-usa
+- Cost of buying a house in Spain: https://www.comingtospain.com/blog/cost-of-buying-house-in-spain
+- How to get a mortgage in Spain: https://www.comingtospain.com/blog/how-to-get-a-mortgage-in-spain
+
+MOVING / GENERAL:
+- How to move to Spain from the US: https://www.comingtospain.com/blog/how-to-move-to-spain-from-the-us
+- Moving to Barcelona from the US: https://www.comingtospain.com/blog/moving-to-barcelona-from-the-us-1
+- Pros and cons of living in Spain: https://www.comingtospain.com/blog/pros-and-cons-of-living-in-spain
+- Best places to live in Spain for expats: https://www.comingtospain.com/blog/best-places-to-live-in-spain-for-expats-guide
+- Best places to live by the sea: https://www.comingtospain.com/blog/best-places-to-live-in-spain-by-the-sea
+- Moving to Spain with family: https://www.comingtospain.com/blog/moving-to-spain-with-family
+- Moving to Spain with a dog: https://www.comingtospain.com/blog/moving-to-spain-with-a-dog
+- What to know before moving to Spain: https://www.comingtospain.com/blog/what-to-know-before-moving-to-spain
+- Moving to Spain without a job: https://www.comingtospain.com/blog/moving-to-spain-without-a-job
+
+JOBS / REMOTE WORK:
+- Jobs in Spain for English speakers: https://www.comingtospain.com/blog/jobs-in-spain-for-english-speakers
+- How to find a remote job in Spain: https://www.comingtospain.com/blog/how-to-find-a-remote-job-in-spain
+- US companies with offices in Spain: https://www.comingtospain.com/blog/us-companies-with-offices-in-spain
+
+HOUSING:
+- Finding an apartment in Madrid: https://www.comingtospain.com/blog/finding-an-apartment-in-madrid
+- How to find an apartment in Valencia: https://www.comingtospain.com/blog/how-to-find-an-apartment-in-valencia
+- Find apartment Barcelona: https://www.comingtospain.com/blog/find-apartment-barcelona
+- How to rent an apartment in Barcelona: https://www.comingtospain.com/blog/how-to-rent-an-apartment-in-barcelona
+
+## PARTNER NETWORK
+
+**Carlos Lorenzo — American Legal Spain** (carloslorenzo@americanlegalspain.com)
+US citizens only. $150 Global Mobility call: tax + immigration. Tax simulations, double taxation, NLV eligibility.
+Route: American + under 18 months to move + has assets or complexity.
+
+**Rob Hoey — SJB US**
+Cross-border financial planning. Free first call. 401k/IRA restructuring, custodian selection, dividend income strategy, PFIC/PRIPS compliance.
+Route: Has US retirement accounts OR planning retirement income in Spain.
+Key: Vanguard often closes accounts for Spanish residents. Fidelity/Schwab are safe.
+
+**Steve Eakins — Lumon** (steve.eakins@lumonpay.com)
+Currency transfers + forward contracts. Free account. Rate locking up to 2 years.
+Route: Buying property OR needs regular income transfers. Wise is NOT enough for large transfers.
+
+**Ciaran — Innoinsure/Adeslas** (innoinsure.com/adeslas/comingtospain)
+Visa-compliant health insurance. Zero co-payments, zero waiting periods. Covers pre-existing conditions.
+Route: ALWAYS for NLV and Digital Nomad visa applicants. Standard Spanish policies get rejected by consulates.
+
+**Sabine — Bureaucracy.es**
+NLV + Digital Nomad visa applications. Free initial consultation. 10% discount for Coming to Spain clients.
+Route: Needs a visa + under 18 months out.
+
+**Kelly Lamusse — Authentikly** (kelly@authentikly.com)
+Rental flat search across Spain. Nationwide coverage.
+Route: Planning to rent.
+
+**Mark Castley — Lucas Fox** (mark.castley@lucasfox.com)
+Property purchase agent, premium international agency across Spain.
+Route: Planning to buy.
+
+**Mortgage Direct**
+Spanish mortgage broker for international buyers. Banks typically lend 70% to non-residents.
+Route: Buying + needs financing.
+
+## CRITICAL FACTS
+
+- 183 days = Spanish tax resident = worldwide income taxed
+- Federal/public US pension = exempt. Private pension/401k/IRA distributions = taxed as salary.
+- Cannot transfer 401k/IRA to Spain without huge tax bill. Keep in US.
+- Sell US primary residence BEFORE becoming Spanish tax resident.
+- Beckham Law: only worthwhile above ~€60k income. Not for retirees.
+- Wealth tax: Andalucía/Madrid ~€3.5m exempt; Valencia €1m; Catalonia €500k.
+- Visa health insurance: MUST have zero co-payments AND zero waiting periods.
+- Vanguard often closes accounts for Spanish residents. Use Fidelity or Schwab.
+- NLV since May 2025: adult children 18+ can no longer be added unless medically dependent.
+- Digital Nomad Visa from Spain as tourist: ~20 business days, 3-year visa. From home country: 3 months, 1 year.
+- Property purchase: budget 10-12% on top of price for taxes/fees. Max 70% mortgage for foreigners.`;
+
+let messages = [], questionCount = 0, isLoading = false, userEmail = '';
+
+function startChat() {
+  document.getElementById('startScreen').remove();
+  document.getElementById('inputArea').style.display = 'block';
+  showEmailGate();
+}
+
+function showEmailGate() {
+  const gate = document.createElement('div');
+  gate.className = 'email-gate';
+  gate.id = 'emailGate';
+  gate.innerHTML = `
+    <h3>Where should we send your plan?</h3>
+    <p>Enter your email and Laetitia will follow up to connect you with the right people for your situation.</p>
+    <div class="email-input-wrap">
+      <input type="email" id="emailInput" placeholder="your@email.com" />
+      <button class="email-submit" onclick="submitEmail()">Get my personalised plan</button>
+    </div>
+    <p class="privacy-note">Shared only with Coming to Spain. No spam, ever.</p>`;
+  document.getElementById('chat').appendChild(gate);
+  scrollToBottom();
+  document.getElementById('emailInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
+}
+
+function submitEmail() {
+  const emailInput = document.getElementById('emailInput');
+  const email = emailInput.value.trim();
+  if (!email || !email.includes('@')) { emailInput.style.borderColor = '#C4622D'; return; }
+  userEmail = email;
+  sendEmailToFormspree(email);
+  document.getElementById('emailGate').remove();
+  document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+  beginConversation();
+}
+
+function beginConversation() {
+  addBotMessage(`Hola! I'm Laetitia's Spain Readiness Bot — I'll ask you a few quick questions and give you a personalised plan for your move.\n\nLet's start: are you planning to keep working remotely when you move to Spain, or are you more thinking about retiring or taking a sabbatical?`);
+  updateProgress(5);
+}
+
+function addBotMessage(text) {
+  const chat = document.getElementById('chat');
+  const msg = document.createElement('div');
+  msg.className = 'msg';
+  msg.innerHTML = `<div class="avatar bot">L</div><div class="bubble bot">${formatMessage(text)}</div>`;
+  chat.appendChild(msg);
+  scrollToBottom();
+}
+
+function addUserMessage(text) {
+  const chat = document.getElementById('chat');
+  const msg = document.createElement('div');
+  msg.className = 'msg user';
+  msg.innerHTML = `<div class="avatar user-av">You</div><div class="bubble user">${esc(text)}</div>`;
+  chat.appendChild(msg);
+  scrollToBottom();
+}
+
+function showTyping() {
+  const chat = document.getElementById('chat');
+  const t = document.createElement('div');
+  t.className = 'typing'; t.id = 'typingIndicator';
+  t.innerHTML = `<div class="avatar bot">L</div><div class="typing-dots"><span></span><span></span><span></span></div>`;
+  chat.appendChild(t); scrollToBottom();
+}
+
+function hideTyping() { const t = document.getElementById('typingIndicator'); if (t) t.remove(); }
+
+function formatMessage(text) {
+  // Detect roadmap output
+  if (text.includes('Step 1:') || text.includes('**Step 1') || text.includes('reading list') || text.includes('action plan') || text.includes('starter plan') || text.includes('preparation plan')) {
+    return formatRoadmap(text);
+  }
+  let f = esc(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+  return `<p>${f}</p>`;
+}
+
+function formatRoadmap(text) {
+  let html = '';
+  const lines = text.split('\n');
+  let stepCount = 0;
+  let inStep = false;
+  let stepHtml = '';
+
+  function flushStep() {
+    if (inStep && stepHtml) { html += `<div class="step-block">${stepHtml}</div>`; stepHtml = ''; inStep = false; }
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.trim();
+    if (!line) { if (inStep) stepHtml += ''; continue; }
+
+    // Situation box
+    if (line.startsWith('[') && line.endsWith(']')) {
+      flushStep();
+      html += `<div class="situation-box">${esc(line.slice(1,-1))}</div>`;
+      continue;
+    }
+
+    // Section title (Your Spain ... plan / reading list)
+    if (line.match(/^\*?\*?Your Spain/i) && !line.includes('Step')) {
+      flushStep();
+      const title = line.replace(/\*\*/g,'');
+      html += `<p style="font-family:'Playfair Display',serif;font-size:18px;color:#1A2B3C;font-weight:600;margin:10px 0 8px;">${esc(title)}</p>`;
+      continue;
+    }
+
+    // Step heading
+    const stepMatch = line.match(/^\*?\*?Step\s*(\d+):\s*(.*)/i);
+    if (stepMatch) {
+      flushStep();
+      stepCount++;
+      inStep = true;
+      const title = stepMatch[2].replace(/\*\*/g,'');
+      stepHtml = `<div class="step-title"><div class="step-num">${stepCount}</div>${esc(title)}</div>`;
+      continue;
+    }
+
+    // Partner line
+    if (line.startsWith('→') || line.toLowerCase().startsWith('→ partner') || (line.startsWith('-') && line.toLowerCase().includes('partner'))) {
+      const partner = line.replace(/^[→\-]\s*(Partner:\s*)?/i,'').replace(/\*\*/g,'');
+      if (inStep) stepHtml += `<div class="partner-tag">→ ${esc(partner)}</div>`;
+      else html += `<div class="partner-tag" style="margin:6px 0;">→ ${esc(partner)}</div>`;
+      continue;
+    }
+
+    // Blog post links (markdown or plain URL)
+    const linkMatch = line.match(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/);
+    if (linkMatch) {
+      flushStep();
+      const label = linkMatch[1], url = linkMatch[2];
+      if (!html.includes('read-block')) html += `<div class="read-block"><div class="read-title">Recommended reading</div>`;
+      html += `<a class="read-link" href="${url}" target="_blank">${esc(label)}</a>`;
+      // close block after last link — handled below
+      continue;
+    }
+
+    // Plain URL
+    const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
+    if (urlMatch) {
+      const url = urlMatch[1];
+      const label = url.replace('https://www.comingtospain.com/blog/','').replace(/-/g,' ');
+      flushStep();
+      html += `<a class="read-link" href="${url}" target="_blank">${esc(label)}</a>`;
+      continue;
+    }
+
+    // Normal text
+    const formatted = esc(line).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    if (inStep) {
+      stepHtml += `<div class="step-body">${formatted}</div>`;
+    } else {
+      html += `<p>${formatted}</p>`;
+    }
+  }
+
+  flushStep();
+
+  // Close any open read-block
+  if (html.includes('<div class="read-block">') && !html.endsWith('</div>')) html += '</div>';
+
+  return html;
+}
+
+function esc(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  questionCount++;
+  addUserMessage(text);
+  updateProgress(Math.min(questionCount * 10, 88));
+  messages.push({ role: 'user', content: text });
+  setLoading(true); showTyping();
+  try {
+    const response = await callClaude();
+    hideTyping();
+    const reply = response.content[0].text;
+    messages.push({ role: 'assistant', content: reply });
+    addBotMessage(reply);
+    if (reply.includes('Step 1') || reply.includes('reading list') || reply.includes('action plan') || reply.includes('starter plan') || reply.includes('preparation plan')) {
+      updateProgress(100);
+      setTimeout(() => showFollowUp(), 900);
+    }
+  } catch(err) {
+    hideTyping();
+    addBotMessage("Something went wrong on my end — could you try again?");
+    console.error(err);
+  }
+  setLoading(false);
+}
+
+async function callClaude() {
+  const res = await fetch('https://delicate-rice-8225.laetitia-4a1.workers.dev', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      
+      
+      
+    },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1200, system: SYSTEM_PROMPT, messages })
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`API ${res.status}: ${errText}`);
+  }
+  return res.json();
+}
+
+async function sendEmailToFormspree(email) {
+  try {
+    await fetch('https://formspree.io/f/xnnqojqo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'Spain Readiness Bot', _subject: 'New Spain Bot Lead: ' + email })
+    });
+  } catch(e) { console.log('Formspree error', e); }
+}
+
+function showFollowUp() {
+  addBotMessage(`Laetitia will be in touch at **${userEmail}** to make the introductions — usually within 24 hours.\n\nIn the meantime, feel free to explore the Coming to Spain website or email **hello@comingtospain.com** directly.`);
+}
+
+function setLoading(v) {
+  isLoading = v;
+  document.getElementById('sendBtn').disabled = v;
+  document.getElementById('userInput').disabled = v;
+}
+
+function updateProgress(pct) { document.getElementById('progressFill').style.width = pct + '%'; }
+
+function scrollToBottom() { setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100); }
+</script>
+</body>
+</html>
